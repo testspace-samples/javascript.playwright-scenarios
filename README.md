@@ -110,14 +110,17 @@ The workflow uploads both:
 
 The workflow can also publish JUnit results to Testspace.
 
-Configure these repository settings in GitHub:
+The workflow is configured to publish to the Testspace staging server:
 
-- Variable: TESTSPACE_DOMAIN
-    Example value: your-org.testspace.com
+- `samples.stridespace.com`
+
+Configure this repository secret in GitHub:
+
 - Secret: TESTSPACE_TOKEN
+    Optional for public repositories
     Required for private repositories
 
-When TESTSPACE_DOMAIN is set, CI runs the Testspace setup action and publishes:
+CI publishes:
 
 - test-results/junit/results.xml
 

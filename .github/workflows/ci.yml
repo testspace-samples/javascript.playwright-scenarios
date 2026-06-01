@@ -4,8 +4,11 @@ on:
   push:
     branches:
       - main
+      - master
   pull_request:
   workflow_dispatch:
+  repository_dispatch:
+    types: [workspace_dispatch]
 
 jobs:
   test:
@@ -34,8 +37,13 @@ jobs:
         uses: testspace-com/setup-testspace@v1
         with:
           domain: samples.stridespace.com
+          # Optional for public repositories; required for private repositories.
+          token: ${{ secrets.TESTSPACE_TOKEN }}
 
       - name: Publish results to Testspace
+        env:
+          # Optional for public repositories; required for private repositories.
+          TESTSPACE_TOKEN: ${{ secrets.TESTSPACE_TOKEN }}
         run: testspace test-results/junit/results.xml
 
       - name: Upload JUnit report
