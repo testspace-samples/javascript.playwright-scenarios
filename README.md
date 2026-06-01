@@ -114,12 +114,6 @@ The workflow is configured to publish to the Testspace staging server:
 
 - `samples.stridespace.com`
 
-Configure this repository secret in GitHub:
-
-- Secret: TESTSPACE_TOKEN
-    Optional for public repositories
-    Required for private repositories
-
 CI publishes:
 
 - test-results/junit/results.xml

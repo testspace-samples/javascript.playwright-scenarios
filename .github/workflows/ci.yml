@@ -37,14 +37,10 @@ jobs:
         uses: testspace-com/setup-testspace@v1
         with:
           domain: samples.stridespace.com
-          # Optional for public repositories; required for private repositories.
-          token: ${{ secrets.TESTSPACE_TOKEN }}
 
       - name: Publish results to Testspace
-        env:
-          # Optional for public repositories; required for private repositories.
-          TESTSPACE_TOKEN: ${{ secrets.TESTSPACE_TOKEN }}
         run: testspace test-results/junit/results.xml
+        if: always()
 
       - name: Upload JUnit report
         if: always()
