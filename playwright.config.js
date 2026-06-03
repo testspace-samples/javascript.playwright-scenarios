@@ -1,41 +1,27 @@
 require('dotenv').config();
 
-const { defineConfig, devices } = require('@playwright/test');
-const isWSL = !!process.env.WSL_DISTRO_NAME;
+if (!process.env.BASE_URL) {
+  throw new Error('BASE_URL is not set. Copy .env.example to .env and update BASE_URL.');
+}
+
+const { defineConfig } = require('@playwright/test');
 
 module.exports = defineConfig({
   testDir: './tests',
-  timeout: 30_000,
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  timeout: 60000,
+  retries: 0,
+  workers: 1,
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['junit', { outputFile: 'test-results/junit/results.xml' }]
   ],
   use: {
-    baseURL: process.env.BASE_URL || 'https://example.com',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure'
+    baseURL: process.env.BASE_URL,
+    browserName: 'chromium',
+    headless: !!process.env.CI,
+    viewport: { width: 1280, height: 720 },
+    ignoreHTTPSErrors: true,
   },
-  projects: [
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        launchOptions: {
-          args: [
-            '--window-position=80,80',
-            '--window-size=1440,900',
-            '--start-maximized',
-            ...(isWSL ? ['--ozone-platform=x11', '--disable-gpu'] : [])
-          ]
-        }
-      }
-    }
-  ],
   outputDir: 'test-results/artifacts'
 });

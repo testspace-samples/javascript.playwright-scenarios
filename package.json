@@ -5,12 +5,9 @@
   "description": "Starter setup for running JavaScript Playwright scenarios with HTML and JUnit reporting.",
   "scripts": {
     "test": "playwright test",
-    "test:headed": "playwright test --headed",
-    "test:ui": "playwright test --ui",
-    "test:debug": "playwright test --debug",
     "test:hello": "playwright test tests/hello-world.spec.js",
-    "report:html": "playwright show-report playwright-report",
-    "install:browsers": "playwright install chromium"
+    "test:ui": "playwright test --ui",
+    "report:html": "playwright show-report playwright-report"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
