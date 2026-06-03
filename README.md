@@ -13,36 +13,40 @@ Minimal Playwright setup for JavaScript-based browser scenarios with:
 - Node.js 20+
 - npm 10+
 
-## Initial setup
+## Getting started
 
-If starting from an empty folder, create a project manifest:
-
-```bash
-npm init -y
-```
-
-Install project dependencies:
+Clone the repo and install dependencies:
 
 ```bash
-npm install --save-dev @playwright/test dotenv
+npm install
 ```
 
-Optional: create a local environment file from the example:
-
-```bash
-cp .env.example .env
-```
-
-Install the browser used by this starter project:
+Install the browser:
 
 ```bash
 npx playwright install chromium
+```
+
+Copy the environment file and set `BASE_URL` to your target server:
+
+```bash
+cp .env.example .env
 ```
 
 Run the hello-world verification test:
 
 ```bash
 npm run test:hello
+```
+
+## Starting from scratch
+
+If you are creating a new project rather than cloning this one:
+
+```bash
+npm init -y
+npm install --save-dev @playwright/test dotenv
+npx playwright install chromium
 ```
 
 ## Running tests
@@ -59,22 +63,10 @@ Run a single file directly:
 npx playwright test tests/hello-world.spec.js
 ```
 
-Run headed mode:
-
-```bash
-npm run test:headed
-```
-
-Run with Playwright UI mode:
+Run with Playwright UI mode (interactive, useful for debugging):
 
 ```bash
 npm run test:ui
-```
-
-Run in debug mode:
-
-```bash
-npm run test:debug
 ```
 
 ## Reports
@@ -120,21 +112,17 @@ CI publishes:
 
 ## Changing the target URL
 
-The sample test uses `BASE_URL` and defaults to `https://example.com`.
-
-You can store it in a `.env` file:
+`BASE_URL` must be set before running tests. Set it in your `.env` file:
 
 ```bash
-BASE_URL=https://example.com
+BASE_URL=https://your-server.example.com
 ```
 
-Example:
+Or pass it inline:
 
 ```bash
-BASE_URL=https://playwright.dev npm run test:hello
+BASE_URL=https://your-server.example.com npm test
 ```
-
-If you change `BASE_URL`, update the sample assertions to match that page.
 
 ## Project structure
 

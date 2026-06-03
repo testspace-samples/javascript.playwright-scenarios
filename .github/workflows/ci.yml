@@ -31,16 +31,20 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright tests
+        env:
+          BASE_URL: ${{ vars.BASE_URL }}
+          PASSWORD: ${{ secrets.PASSWORD }}
         run: npm test
 
       - name: Setup Testspace client
+        if: always()
         uses: testspace-com/setup-testspace@v1
         with:
           domain: samples.stridespace.com
 
       - name: Publish results to Testspace
-        run: testspace test-results/junit/results.xml
         if: always()
+        run: testspace test-results/junit/results.xml
 
       - name: Upload JUnit report
         if: always()
