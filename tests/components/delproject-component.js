@@ -27,20 +27,23 @@ async function delprojectComponent(page) {
   // Step 3: Click on options menu
   const projectRow = page.locator('tr', { has: page.getByText(projectName_7, { exact: true }) });
   await projectRow.hover();
-  // Use page.evaluate to fire the icon click — the icon is CSS-hidden until hover and
-  // Playwright's synthetic click does not reliably trigger the DETAILS toggle in Chromium
+  // Click the <summary> element — the semantic toggle for <details data-url>
+  // page.evaluate bypasses Playwright's visibility model; summary is always in DOM regardless of hover state
   await page.evaluate((name) => {
     const link = Array.from(document.querySelectorAll('tr a')).find(a => a.textContent.trim() === name);
     const row = link?.closest('tr');
-    row?.querySelector('.icon-three-bars')?.click();
+    row?.querySelector('details summary')?.click();
   }, projectName_7);
 
   // Step 4: Click on "Delete"
   // DETAILS[data-url] — content is AJAX-injected; page.evaluate bypasses event synthesis
+  // Scope to the correct row to avoid hitting another row's empty options-menu
   await projectRow.locator('.options-menu').waitFor({ state: 'visible' });
-  await page.evaluate(() => {
-    document.querySelector('.options-menu a[data-method="delete"]').click();
-  });
+  await page.evaluate((name) => {
+    const link = Array.from(document.querySelectorAll('tr a')).find(a => a.textContent.trim() === name);
+    const row = link?.closest('tr');
+    row?.querySelector('.options-menu a[data-method="delete"]')?.click();
+  }, projectName_7);
 
   // Step 5: Click on "YES"
   // Step 6: Submit form
@@ -55,8 +58,9 @@ async function delprojectComponent(page) {
     document.querySelector('.overmind-dialog-container button[type="submit"]').click();
   });
   await deletePromise;
-  // Turbolinks reloads the page — wait for the project row to disappear
-  await page.locator('tr', { has: page.getByText(projectName_7, { exact: true }) }).waitFor({ state: 'detached', timeout: 15000 });
+  // Explicit goto bypasses Turbolinks cache-preview — guarantees fresh server-rendered /projects page
+  await page.goto(`${BASE_URL}/projects`);
+  await page.waitForLoadState('domcontentloaded');
 }
 
 module.exports = { delprojectComponent };

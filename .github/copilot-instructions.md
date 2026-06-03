@@ -12,20 +12,25 @@ Projects, Spaces, and other list items expose a hamburger menu via a `<details d
 // Find the row by item name
 const row = page.locator('tr', { has: page.getByText(itemName, { exact: true }) });
 
-// Hover to reveal the summary button (CSS :hover), then click the icon via page.evaluate —
-// Playwright's synthetic click on CSS-hidden elements does not reliably trigger the DETAILS toggle
+// Hover, then click the <summary> element via page.evaluate —
+// clicking <summary> is the reliable semantic toggle for <details data-url>;
+// page.evaluate bypasses Playwright's visibility constraints
 await row.hover();
 await page.evaluate((name) => {
   const link = Array.from(document.querySelectorAll('tr a')).find(a => a.textContent.trim() === name);
   const row = link?.closest('tr');
-  row?.querySelector('.icon-three-bars')?.click();
+  row?.querySelector('details summary')?.click();
 }, itemName);
 
-// Wait for AJAX menu content (scoped to row), then click the action via page.evaluate
+// Wait for AJAX menu content (scoped to row), then click the action —
+// CRITICAL: scope the querySelector to the row — document.querySelector will hit the first
+// (possibly empty) .options-menu in DOM order, which may not be the one that just loaded
 await row.locator('.options-menu').waitFor({ state: 'visible' });
-await page.evaluate(() => {
-  document.querySelector('.options-menu a[data-method="delete"]').click();
-});
+await page.evaluate((name) => {
+  const link = Array.from(document.querySelectorAll('tr a')).find(a => a.textContent.trim() === name);
+  const row = link?.closest('tr');
+  row?.querySelector('.options-menu a[data-method="delete"]')?.click();
+}, itemName);
 ```
 
 ## Confirmation Dialog (overmind)
@@ -39,6 +44,9 @@ await page.locator('.overmind-dialog-container button[type="submit"]').waitFor({
 await page.evaluate(() => {
   document.querySelector('.overmind-dialog-container button[type="submit"]').click();
 });
-// For destructive actions use waitForURL, not waitForLoadState
-await page.waitForURL(url => url.pathname === '/expected-path', { timeout: 15000 });
+// After destructive confirmation, do an explicit goto to bypass Turbolinks cache-preview —
+// Turbolinks may serve a stale cached page before the real GET completes, causing assertions
+// to run against old DOM. page.goto forces a fresh server-rendered response.
+await page.goto(BASE_URL + '/expected-path');
+await page.waitForLoadState('domcontentloaded');
 ```
