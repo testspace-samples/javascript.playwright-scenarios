@@ -1,3 +1,5 @@
+const { expect } = require('@playwright/test');
+
 /**
  * Component: login
  * Description: Component to login into Testspace
@@ -10,6 +12,7 @@
  *   5. Enter password
  *   6. Click on "SUBMIT"
  *   7. Submit signin form
+ *   8. Navigate to $env.BASE_URL
  */
 async function loginComponent(page) {
   const BASE_URL = process.env.BASE_URL;
@@ -33,9 +36,11 @@ async function loginComponent(page) {
   // Step 6: Click on "SUBMIT"
   // Step 7: Submit signin form
   await page.getByRole('button', { name: 'Submit', exact: true }).click();
-  // Form uses data-remote="true" (Rails UJS); Turbolinks follows the redirect as a top-level
-  // navigation. Wait for the browser to leave the signin subdomain, then land on BASE_URL.
+  // The signin form uses data-remote="true" (Rails UJS); Turbolinks follows the server redirect
+  // as a top-level navigation away from signin.stridespace.com.
   await page.waitForURL(url => !url.hostname.startsWith('signin.'), { timeout: 30000 });
+
+  // Step 8: Navigate to $env.BASE_URL
   await page.goto(BASE_URL);
 }
 
